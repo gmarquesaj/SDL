@@ -1,0 +1,11 @@
+.vscode/
+*.jpg
+*.png
+*.ppm
+*.import
+*.webm
+*.wav
+*.mp3
+*.o
+app.elf
+*teste*
