@@ -17,6 +17,9 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #define delay(x) SDL_Delay(x)
+using std::cout;
+using std::memcpy;
+using std::string;
 class SDL
 {
 private:
@@ -29,7 +32,7 @@ private:
     SDL_Texture *texture;
 
 public:
-    SDL(int w, int h, int fonts);
+    SDL(int w, int h, int fonts,string titulo = "SDL");
     ~SDL();
 
     void clear();
@@ -38,7 +41,7 @@ public:
     bool PediuPraSair();
     void Print(int x, int y, std::string texto, SDL_Color cor = {255, 250, 255});
     void DrawArray(const void *px);
-    void DrawArrayLockTexture(const void *px,const int pxSize);
+    void DrawArrayLockTexture(const void *px, const int pxSize);
 
     int textH();
 };

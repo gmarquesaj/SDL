@@ -5,18 +5,19 @@
 #include <SDL2/SDL_ttf.h>
 #include "SDL.hpp"
 
-SDL::SDL(int w, int h, int fonts)
+SDL::SDL(int w, int h, int fonts, string titulo)
 {
     width = w;
     height = h;
     SDL_Init(SDL_INIT_VIDEO);
-    SDL_CreateWindowAndRenderer(width, height, 0, &window, &renderer);
+    SDL_CreateWindowAndRenderer(width, height, SDL_WINDOW_RESIZABLE | SDL_WINDOW_VULKAN /* | SDL_WINDOW_FULLSCREEN_DESKTOP */, &window, &renderer);
+    SDL_SetWindowTitle(window, titulo.c_str());
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
     SDL_RenderClear(renderer);
     TTF_Init();
     fonte = TTF_OpenFont("/usr/share/fonts/TTF/Comic.TTF", fonts);
     if (!fonte)
-        std::cout << "Couldn't find/init open ttf font." << std::endl;
+        cout << "Falha ao abrir fonte\n";
     texture = SDL_CreateTexture(
         renderer,
         SDL_PIXELFORMAT_RGB888,
@@ -55,7 +56,7 @@ bool SDL::PediuPraSair()
 
     return false;
 }
-void SDL::Print(int x, int y, std::string texto, SDL_Color cor)
+void SDL::Print(int x, int y, string texto, SDL_Color cor)
 {
     // SDL_Surface *surfaceMessage = TTF_RenderText_Solid(fonte, texto.c_str(), White);
     SDL_Surface *surfaceMessage =
@@ -93,7 +94,7 @@ void SDL::DrawArrayLockTexture(const void *px, const int pxSize)
         NULL,
         reinterpret_cast<void **>(&lockedPixels),
         &pitch);
-    std::memcpy(lockedPixels, px, pxSize);
+    memcpy(lockedPixels, px, pxSize);
     SDL_UnlockTexture(texture);
     SDL_RenderCopy(renderer, texture, NULL, NULL);
 }
