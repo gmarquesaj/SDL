@@ -1,5 +1,17 @@
 #pragma once
 
+/*
+######################################################
+##   CRIADO POR GILSON MARQUES ALVES JUNIOR         ##
+##   EM 3/12/2022 - Pirapora MG Brasil              ##
+##   CONTATOS                                       ##
+##   55038984177956 gmarquesaj@gmail.com            ##
+##   Facilita o uso do SDL para desenhar Texturas   ##
+##       (compilar usando  -lSDL2 -lSDL2_ttf)       ##
+######################################################
+*/
+
+
 #include <string>
 #include <iostream>
 #include <SDL2/SDL.h>
