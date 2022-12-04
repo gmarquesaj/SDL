@@ -11,7 +11,7 @@
 ######################################################
 */
 
-
+#include <cstring>
 #include <string>
 #include <iostream>
 #include <SDL2/SDL.h>
@@ -38,5 +38,7 @@ public:
     bool PediuPraSair();
     void Print(int x, int y, std::string texto, SDL_Color cor = {255, 250, 255});
     void DrawArray(const void *px);
+    void DrawArrayLockTexture(const void *px,const int pxSize);
+
     int textH();
 };

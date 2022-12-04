@@ -83,6 +83,20 @@ void SDL::DrawArray(const void *px)
         width * 4);
     SDL_RenderCopy(renderer, texture, NULL, NULL);
 }
+void SDL::DrawArrayLockTexture(const void *px, const int pxSize)
+{
+
+    unsigned char *lockedPixels = nullptr;
+    int pitch = 0;
+    SDL_LockTexture(
+        texture,
+        NULL,
+        reinterpret_cast<void **>(&lockedPixels),
+        &pitch);
+    std::memcpy(lockedPixels, px, pxSize);
+    SDL_UnlockTexture(texture);
+    SDL_RenderCopy(renderer, texture, NULL, NULL);
+}
 int SDL::textH()
 {
 
