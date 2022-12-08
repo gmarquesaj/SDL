@@ -16,10 +16,11 @@
 #include <iostream>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
-#include<vector>
+#include <vector>
 #define delay(x) SDL_Delay(x)
 #define NumCanais 4
 #define format SDL_PIXELFORMAT_RGB888
+#define imagemP SDL_Texture *
 using std::cout;
 using std::memcpy;
 using std::string;
@@ -28,6 +29,7 @@ using std::vector;
 class SDL
 {
 private:
+public:
     int width;
     int height;
     SDL_Event event;
@@ -36,8 +38,6 @@ private:
     TTF_Font *fonte;
     SDL_Texture *texture;
     SDL_Surface *surface;
-
-public:
     SDL(int w, int h, int fonts, string titulo = "SDL");
     ~SDL();
 
@@ -50,5 +50,7 @@ public:
     void drawArrayLockTexture(const void *px, const int pxSize);
     void printScreenBMP(const char *caminho);
     int textH();
-    void retangulo(int rx,int ry,int rw,int rh,int r,int g,int b);
+    void retangulo(int rx, int ry, int rw, int rh, int r, int g, int b);
+    SDL_Texture * criarImagem( const char *caminho);
+    void desenhaImagem(SDL_Texture *img, SDL_Rect *origem = NULL, SDL_Rect *saida = NULL);
 };

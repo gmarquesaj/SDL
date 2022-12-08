@@ -115,3 +115,34 @@ void SDL::retangulo(int rx, int ry, int rw, int rh, int r, int g, int b)
         SDL_SetRenderDrawColor(renderer, r, g, b, SDL_ALPHA_OPAQUE);
     SDL_RenderDrawRect(renderer, &ret);
 }
+SDL_Texture *SDL::criarImagem(const char *caminho)
+{
+    SDL_Surface *si = SDL_LoadBMP(caminho);
+    SDL_Texture *img;
+    if (si == NULL)
+    {
+        cout << "ERRO AO LER A IMAGEM \"" << SDL_GetError() << "\" \n";
+        exit(1);
+    }
+    img = SDL_CreateTextureFromSurface(renderer, si);
+    if (img == NULL)
+    {
+        cout << "ERRO AO CRIAR A IMAGEM \"" << SDL_GetError() << "\" \n";
+        exit(1);
+    }
+    SDL_FreeSurface(si);
+    return img;
+};
+void SDL::desenhaImagem(SDL_Texture *img, SDL_Rect *origem, SDL_Rect *saida)
+{
+    if (img == NULL)
+    {
+        cout << "ERRO IMAGEM nula \"" << SDL_GetError() << "\" \n";
+        exit(1);
+    }
+    int erro = SDL_RenderCopy(renderer, img, origem, saida);
+    if (erro != 0)
+    {
+        cout << " ERRO AO DESENHAR IMAGEM \"" << erro << "\" : \"" << SDL_GetError() << "\" \n";
+    };
+};
