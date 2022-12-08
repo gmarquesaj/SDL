@@ -1,8 +1,5 @@
 
-#include <string>
-#include <iostream>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
+
 #include "SDL.hpp"
 
 SDL::SDL(int w, int h, int fonts, string titulo)
@@ -20,32 +17,34 @@ SDL::SDL(int w, int h, int fonts, string titulo)
         cout << "Falha ao abrir fonte\n";
     texture = SDL_CreateTexture(
         renderer,
-        SDL_PIXELFORMAT_RGB888,
+        format,
         SDL_TEXTUREACCESS_STREAMING,
         width, height);
+    surface = SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, format);
 }
 void SDL::clear()
 {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
     SDL_RenderClear(renderer);
 }
-void SDL::Draw()
+void SDL::draw()
 {
     SDL_RenderPresent(renderer);
 }
 SDL::~SDL()
 {
     SDL_DestroyTexture(texture);
+    SDL_FreeSurface(surface);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
-void SDL::SetPixel(int x, int y, int r, int g, int b, int a)
+void SDL::setPixel(int x, int y, int r, int g, int b, int a)
 {
     SDL_SetRenderDrawColor(renderer, r, g, b, a);
     SDL_RenderDrawPoint(renderer, x, y);
 }
-bool SDL::PediuPraSair()
+bool SDL::pediuPraSair()
 {
 
     while (SDL_PollEvent(&event))
@@ -56,7 +55,7 @@ bool SDL::PediuPraSair()
 
     return false;
 }
-void SDL::Print(int x, int y, string texto, SDL_Color cor)
+void SDL::print(int x, int y, string texto, SDL_Color cor)
 {
     // SDL_Surface *surfaceMessage = TTF_RenderText_Solid(fonte, texto.c_str(), White);
     SDL_Surface *surfaceMessage =
@@ -75,16 +74,16 @@ void SDL::Print(int x, int y, string texto, SDL_Color cor)
     SDL_FreeSurface(surfaceMessage);
     SDL_DestroyTexture(Message);
 }
-void SDL::DrawArray(const void *px)
+void SDL::drawArray(const void *px)
 {
     SDL_UpdateTexture(
         texture,
         NULL,
         px,
-        width * 4);
+        width * NumCanais);
     SDL_RenderCopy(renderer, texture, NULL, NULL);
 }
-void SDL::DrawArrayLockTexture(const void *px, const int pxSize)
+void SDL::drawArrayLockTexture(const void *px, const int pxSize)
 {
 
     unsigned char *lockedPixels = nullptr;
@@ -95,11 +94,24 @@ void SDL::DrawArrayLockTexture(const void *px, const int pxSize)
         reinterpret_cast<void **>(&lockedPixels),
         &pitch);
     memcpy(lockedPixels, px, pxSize);
-    SDL_UnlockTexture(texture);
     SDL_RenderCopy(renderer, texture, NULL, NULL);
+    SDL_UnlockTexture(texture);
 }
 int SDL::textH()
 {
 
     return TTF_FontHeight(fonte);
 };
+
+void SDL::printScreenBMP(const char *caminho)
+{
+    SDL_RenderReadPixels(renderer, NULL, format, surface->pixels, surface->pitch);
+    SDL_SaveBMP(surface, caminho);
+}
+void SDL::retangulo(int rx, int ry, int rw, int rh, int r, int g, int b)
+{
+    SDL_Rect ret = {rx, rx, rw, rh};
+    if (r > -1 and g > -1 and b > -1)
+        SDL_SetRenderDrawColor(renderer, r, g, b, SDL_ALPHA_OPAQUE);
+    SDL_RenderDrawRect(renderer, &ret);
+}
