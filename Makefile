@@ -11,5 +11,5 @@ teste.o: teste.cpp
 	$(comp) -c teste.cpp  -O3
 
 clear:
-	rm -f *.o *.out app
+	rm -f *.o *.out app img/*
 	clear

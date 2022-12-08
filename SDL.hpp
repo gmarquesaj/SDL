@@ -29,7 +29,6 @@ using std::vector;
 class SDL
 {
 private:
-public:
     int width;
     int height;
     SDL_Event event;
@@ -38,19 +37,32 @@ public:
     TTF_Font *fonte;
     SDL_Texture *texture;
     SDL_Surface *surface;
+
+public:
     SDL(int w, int h, int fonts, string titulo = "SDL");
     ~SDL();
-
+    // Limpar a tela(preenche a tela com a cor de fundo)
     void clear();
+    // Atualizar a tela
     void draw();
+    // Desenha um unico pixel
     void setPixel(int x, int y, int r, int g, int b, int a = 255);
+    // Retorna verdadeiro se o usuario tentou fechar a janela
     bool pediuPraSair();
+    // Desenhar texto na tela
     void print(int x, int y, std::string texto, SDL_Color cor = {255, 250, 255});
+    // Desenhar uma lista de pixels
     void drawArray(const void *px);
+    // Desenhar uma lista de pixels usando "LOCK TEXTURE"
     void drawArrayLockTexture(const void *px, const int pxSize);
+    // Salva o conteudo atual da tela para um arquivo BMP
     void printScreenBMP(const char *caminho);
+    // Retorna a altura em pixels da fonte atual
     int textH();
+    // Desenha um Retangulo
     void retangulo(int rx, int ry, int rw, int rh, int r, int g, int b);
-    SDL_Texture * criarImagem( const char *caminho);
+    // Cria uma textura a partir de um arquivo BMP
+    SDL_Texture *criarImagem(const char *caminho);
+    // Desenha textura na posição e dimensoes especificadas
     void desenhaImagem(SDL_Texture *img, SDL_Rect *origem = NULL, SDL_Rect *saida = NULL);
 };
