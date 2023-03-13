@@ -141,8 +141,58 @@ void SDL::desenhaImagem(SDL_Texture *img, SDL_Rect *origem, SDL_Rect *saida)
         exit(1);
     }
     int erro = SDL_RenderCopy(renderer, img, origem, saida);
-    if (erro != 0)
+   if (erro != 0)
     {
         cout << " ERRO AO DESENHAR IMAGEM \"" << erro << "\" : \"" << SDL_GetError() << "\" \n";
     };
 };
+void SDL:: setarFonte(string caminho,int fonts)
+{
+    fonte = TTF_OpenFont(caminho.c_str(), fonts);
+    if (!fonte)
+ 	    cout << "Falha ao abrir fonte\n";
+
+};
+int SDL:: circulo( int x, int y, int radius)
+{
+    int offsetx, offsety, d;
+    int status;
+    offsetx = 0;
+    offsety = radius;
+    d = radius -1;
+    status = 0;
+
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    while (offsety >= offsetx) {
+
+        status += SDL_RenderDrawLine(renderer, x - offsety, y + offsetx,
+                                     x + offsety, y + offsetx);
+        status += SDL_RenderDrawLine(renderer, x - offsetx, y + offsety,
+                                     x + offsetx, y + offsety);
+        status += SDL_RenderDrawLine(renderer, x - offsetx, y - offsety,
+                                     x + offsetx, y - offsety);
+        status += SDL_RenderDrawLine(renderer, x - offsety, y - offsetx,
+                                     x + offsety, y - offsetx);
+
+        if (status < 0) {
+            status = -1;
+            break;
+        }
+
+        if (d >= 2*offsetx) {
+            d -= 2*offsetx + 1;
+            offsetx +=1;
+        }
+        else if (d < 2 * (radius - offsety)) {
+            d += 2 * offsety - 1;
+            offsety -= 1;
+        }
+        else {
+            d += 2 * (offsety - offsetx - 1);
+            offsety -= 1;
+            offsetx += 1;
+        }
+    }
+
+    return status;
+}

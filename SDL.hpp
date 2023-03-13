@@ -26,6 +26,7 @@ using std::memcpy;
 using std::string;
 using std::to_string;
 using std::vector;
+
 class SDL
 {
 private:
@@ -65,4 +66,8 @@ public:
     SDL_Texture *criarImagem(const char *caminho);
     // Desenha textura na posição e dimensoes especificadas
     void desenhaImagem(SDL_Texture *img, SDL_Rect *origem = NULL, SDL_Rect *saida = NULL);
+    // Definir a fonte pelo caminho
+    void setarFonte(string caminho,int fonts);
+// Desenha um circulo completo
+int circulo(int x, int y, int radius);
 };
