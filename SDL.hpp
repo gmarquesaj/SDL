@@ -38,8 +38,9 @@ private:
     TTF_Font *fonte;
     SDL_Texture *texture;
     SDL_Surface *surface;
-
+	
 public:
+    void(*onKeyBoardPress)(const Uint8 *teclas);
     SDL(int w, int h, int fonts, string titulo = "SDL");
     ~SDL();
     // Limpar a tela(preenche a tela com a cor de fundo)
@@ -49,7 +50,7 @@ public:
     // Desenha um unico pixel
     void setPixel(int x, int y, int r, int g, int b, int a = 255);
     // Retorna verdadeiro se o usuario tentou fechar a janela
-    bool pediuPraSair();
+   bool pediuPraSair;
     // Desenhar texto na tela
     void print(int x, int y, std::string texto, SDL_Color cor = {255, 250, 255});
     // Desenhar uma lista de pixels
@@ -69,5 +70,8 @@ public:
     // Definir a fonte pelo caminho
     void setarFonte(string caminho,int fonts);
 // Desenha um circulo completo
-int circulo(int x, int y, int radius);
+int circulo(int x, int y, int radius,int r=255,int g=255,int b=255);
+void processarEventos();
+
+
 };

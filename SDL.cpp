@@ -2,6 +2,21 @@
 
 #include "SDL.hpp"
 
+void SDL:: processarEventos(){
+
+    while (SDL_PollEvent(&event))
+    {
+        pediuPraSair= (event.type == SDL_QUIT);
+	if(event.type == SDL_KEYDOWN && onKeyBoardPress!= NULL)
+	{
+		const Uint8* teclas = SDL_GetKeyboardState(NULL);
+		onKeyBoardPress(teclas);
+	}
+            
+    }
+
+   
+};
 SDL::SDL(int w, int h, int fonts, string titulo)
 {
     width = w;
@@ -43,17 +58,6 @@ void SDL::setPixel(int x, int y, int r, int g, int b, int a)
 {
     SDL_SetRenderDrawColor(renderer, r, g, b, a);
     SDL_RenderDrawPoint(renderer, x, y);
-}
-bool SDL::pediuPraSair()
-{
-
-    while (SDL_PollEvent(&event))
-    {
-        if (event.type == SDL_QUIT)
-            return true;
-    }
-
-    return false;
 }
 void SDL::print(int x, int y, string texto, SDL_Color cor)
 {
@@ -153,7 +157,7 @@ void SDL:: setarFonte(string caminho,int fonts)
  	    cout << "Falha ao abrir fonte\n";
 
 };
-int SDL:: circulo( int x, int y, int radius)
+int SDL:: circulo( int x, int y, int radius,int r, int g, int b)
 {
     int offsetx, offsety, d;
     int status;
@@ -162,7 +166,7 @@ int SDL:: circulo( int x, int y, int radius)
     d = radius -1;
     status = 0;
 
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_SetRenderDrawColor(renderer,r,g,b, 255);
     while (offsety >= offsetx) {
 
         status += SDL_RenderDrawLine(renderer, x - offsety, y + offsetx,
