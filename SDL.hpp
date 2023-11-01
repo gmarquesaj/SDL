@@ -40,7 +40,7 @@ private:
     SDL_Surface *surface;
 	
 public:
-    void(*onKeyBoardPress)(const Uint8 *teclas);
+    void(*onKeyBoardPress)(const Uint8 *teclas)=NULL;
     SDL(int w, int h, int fonts, string titulo = "SDL");
     ~SDL();
     // Limpar a tela(preenche a tela com a cor de fundo)
@@ -50,7 +50,7 @@ public:
     // Desenha um unico pixel
     void setPixel(int x, int y, int r, int g, int b, int a = 255);
     // Retorna verdadeiro se o usuario tentou fechar a janela
-   bool pediuPraSair;
+   bool pediuPraSair=false;
     // Desenhar texto na tela
     void print(int x, int y, std::string texto, SDL_Color cor = {255, 250, 255});
     // Desenhar uma lista de pixels

@@ -22,12 +22,12 @@ SDL::SDL(int w, int h, int fonts, string titulo)
     width = w;
     height = h;
     SDL_Init(SDL_INIT_VIDEO);
-    SDL_CreateWindowAndRenderer(width, height, SDL_WINDOW_RESIZABLE | SDL_WINDOW_VULKAN /* | SDL_WINDOW_FULLSCREEN_DESKTOP */, &window, &renderer);
+    SDL_CreateWindowAndRenderer(width, height, 0, &window, &renderer);
     SDL_SetWindowTitle(window, titulo.c_str());
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
     SDL_RenderClear(renderer);
     TTF_Init();
-    fonte = TTF_OpenFont("/usr/share/fonts/TTF/Comic.TTF", fonts);
+    fonte = TTF_OpenFont("/usr/share/fonts/truetype/freefont/FreeMono.ttf", fonts);
     if (!fonte)
         cout << "Falha ao abrir fonte\n";
     texture = SDL_CreateTexture(
@@ -48,10 +48,16 @@ void SDL::draw()
 }
 SDL::~SDL()
 {
+    cout << "SDL_DestroyTexture(texture);\n";
+	
     SDL_DestroyTexture(texture);
+    cout << "SSDL_FreeSurface(surface);\n";
     SDL_FreeSurface(surface);
+    cout << "SSDL_DestroyRenderer(renderer);\n";
     SDL_DestroyRenderer(renderer);
+    cout << "SSDL_DestroyWindow(window);\n";
     SDL_DestroyWindow(window);
+    cout << "SSDL_Quit();\n";
     SDL_Quit();
 }
 void SDL::setPixel(int x, int y, int r, int g, int b, int a)

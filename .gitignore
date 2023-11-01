@@ -10,3 +10,4 @@
 *.o
 app.elf
 *teste*
+*.swp
