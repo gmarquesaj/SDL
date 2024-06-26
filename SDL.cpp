@@ -2,27 +2,43 @@
 
 #include "SDL.hpp"
 
-void SDL:: processarEventos(){
-
+void janela::processarEventos()
+{
     while (SDL_PollEvent(&event))
     {
-        pediuPraSair= (event.type == SDL_QUIT);
-	if(event.type == SDL_KEYDOWN && onKeyBoardPress!= NULL)
-	{
-		const Uint8* teclas = SDL_GetKeyboardState(NULL);
-		onKeyBoardPress(teclas);
-	}
-            
+        pediuPraSair = (event.type == SDL_QUIT);
+        if (event.type == SDL_KEYDOWN && onKeyBoardPress != NULL)
+        {
+            SDL_Scancode scancode = event.key.keysym.scancode;
+            std::cout << "Scancode: " << scancode << std::endl;
+            const Uint8 *teclas = SDL_GetKeyboardState(NULL);
+            onKeyBoardPress(teclas);
+        }
     }
 
-   
+    tempoNovo = agora;
+    tempoAtual = tempoNovo - tempoVelho;
+    int64_t nanos = tempoAtual.count();
+    fps = 1000000000.0 / (nanos);
+    if (limitar)
+    {
+        Uint64 espera = fmax(0, (33000000L - nanos) / 1000000);
+        //    printf("fps %f tempo %lu  espera %lu\n",fps,nanos,espera);
+        SDL_Delay(espera);
+        tempoNovo = agora;
+        tempoAtual = tempoNovo - tempoVelho;
+        int64_t nanos = tempoAtual.count();
+        fps = 1000000000.0 / (nanos);
+    }
+    tempoVelho = tempoNovo;
 };
-SDL::SDL(int w, int h, int fonts, string titulo)
+
+janela::janela(int w, int h, int fonts, string titulo)
 {
     width = w;
     height = h;
     SDL_Init(SDL_INIT_VIDEO);
-    SDL_CreateWindowAndRenderer(width, height, 0, &window, &renderer);
+    SDL_CreateWindowAndRenderer(width, height, SDL_RENDERER_ACCELERATED | SDL_WINDOW_OPENGL, &window, &renderer);
     SDL_SetWindowTitle(window, titulo.c_str());
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
     SDL_RenderClear(renderer);
@@ -30,46 +46,47 @@ SDL::SDL(int w, int h, int fonts, string titulo)
     fonte = TTF_OpenFont("/usr/share/fonts/truetype/freefont/FreeMono.ttf", fonts);
     if (!fonte)
         cout << "Falha ao abrir fonte\n";
-    texture = SDL_CreateTexture(
-        renderer,
-        format,
-        SDL_TEXTUREACCESS_STREAMING,
-        width, height);
-    surface = SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, format);
+    cout << "criada interna\n";
+    surface = SDL_CreateRGBSurfaceWithFormat(0, width, height, 24, format);
+    tempoVelho = agora;
 }
-void SDL::clear()
+
+void janela::clear()
 {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+    SDL_SetRenderDrawColor(renderer, 150, 150, 150, 255);
     SDL_RenderClear(renderer);
 }
-void SDL::draw()
+
+void janela::draw()
 {
     SDL_RenderPresent(renderer);
 }
-SDL::~SDL()
+
+janela::~janela()
 {
-    cout << "SDL_DestroyTexture(texture);\n";
-	
-    SDL_DestroyTexture(texture);
-    cout << "SSDL_FreeSurface(surface);\n";
+
+    cout << "SDL_FreeSurface(surface);\n";
     SDL_FreeSurface(surface);
-    cout << "SSDL_DestroyRenderer(renderer);\n";
+    cout << "SDL_DestroyRenderer(renderer);\n";
     SDL_DestroyRenderer(renderer);
     cout << "SSDL_DestroyWindow(window);\n";
     SDL_DestroyWindow(window);
-    cout << "SSDL_Quit();\n";
+    cout << "SDL_Quit();\n";
     SDL_Quit();
 }
-void SDL::setPixel(int x, int y, int r, int g, int b, int a)
+
+void janela::setPixel(int x, int y, int r, int g, int b, int a)
 {
     SDL_SetRenderDrawColor(renderer, r, g, b, a);
     SDL_RenderDrawPoint(renderer, x, y);
 }
-void SDL::print(int x, int y, string texto, SDL_Color cor)
+
+void janela::print(int x, int y, string texto, SDL_Color *frente, SDL_Color *fundo)
 {
     // SDL_Surface *surfaceMessage = TTF_RenderText_Solid(fonte, texto.c_str(), White);
+
     SDL_Surface *surfaceMessage =
-        TTF_RenderText_Shaded(fonte, texto.c_str(), cor, {0, 0, 0, 100});
+        TTF_RenderText_Shaded(fonte, texto.c_str(), frente == nullptr ? BRANCO : *frente, fundo == 0 ? TRANSPARENTE : *fundo);
     // now you can convert it into a texture
     SDL_Texture *Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
     int w = 0;
@@ -84,50 +101,30 @@ void SDL::print(int x, int y, string texto, SDL_Color cor)
     SDL_FreeSurface(surfaceMessage);
     SDL_DestroyTexture(Message);
 }
-void SDL::drawArray(const void *px)
-{
-    SDL_UpdateTexture(
-        texture,
-        NULL,
-        px,
-        width * NumCanais);
-    SDL_RenderCopy(renderer, texture, NULL, NULL);
-}
-void SDL::drawArrayLockTexture(const void *px, const int pxSize)
-{
 
-    unsigned char *lockedPixels = nullptr;
-    int pitch = 0;
-    SDL_LockTexture(
-        texture,
-        NULL,
-        reinterpret_cast<void **>(&lockedPixels),
-        &pitch);
-    memcpy(lockedPixels, px, pxSize);
-    SDL_RenderCopy(renderer, texture, NULL, NULL);
-    SDL_UnlockTexture(texture);
-}
-int SDL::textH()
+int janela::textH()
 {
-
     return TTF_FontHeight(fonte);
 };
 
-void SDL::printScreenBMP(const char *caminho)
+void janela::printScreenBMP(const char *caminho)
 {
     SDL_RenderReadPixels(renderer, NULL, format, surface->pixels, surface->pitch);
     SDL_SaveBMP(surface, caminho);
 }
-void SDL::retangulo(int rx, int ry, int rw, int rh, int r, int g, int b)
+
+void janela::retangulo(int rx, int ry, int rw, int rh, int r, int g, int b)
 {
     SDL_Rect ret = {rx, rx, rw, rh};
     if (r > -1 and g > -1 and b > -1)
         SDL_SetRenderDrawColor(renderer, r, g, b, SDL_ALPHA_OPAQUE);
     SDL_RenderDrawRect(renderer, &ret);
 }
-SDL_Texture *SDL::criarImagem(const char *caminho)
+
+SDL_Texture *janela::criarImagem(const char *caminho)
 {
     SDL_Surface *si = SDL_LoadBMP(caminho);
+
     SDL_Texture *img;
     if (si == NULL)
     {
@@ -143,7 +140,8 @@ SDL_Texture *SDL::criarImagem(const char *caminho)
     SDL_FreeSurface(si);
     return img;
 };
-void SDL::desenhaImagem(SDL_Texture *img, SDL_Rect *origem, SDL_Rect *saida)
+
+void janela::desenhaImagem(SDL_Texture *img, SDL_Rect *origem, SDL_Rect *saida)
 {
     if (img == NULL)
     {
@@ -151,29 +149,31 @@ void SDL::desenhaImagem(SDL_Texture *img, SDL_Rect *origem, SDL_Rect *saida)
         exit(1);
     }
     int erro = SDL_RenderCopy(renderer, img, origem, saida);
-   if (erro != 0)
+    if (erro != 0)
     {
         cout << " ERRO AO DESENHAR IMAGEM \"" << erro << "\" : \"" << SDL_GetError() << "\" \n";
     };
 };
-void SDL:: setarFonte(string caminho,int fonts)
+
+void janela::setarFonte(string caminho, int fonts)
 {
     fonte = TTF_OpenFont(caminho.c_str(), fonts);
     if (!fonte)
- 	    cout << "Falha ao abrir fonte\n";
-
+        cout << "Falha ao abrir fonte\n";
 };
-int SDL:: circulo( int x, int y, int radius,int r, int g, int b)
+
+int janela::circulo(int x, int y, int radius, int r, int g, int b)
 {
     int offsetx, offsety, d;
     int status;
     offsetx = 0;
     offsety = radius;
-    d = radius -1;
+    d = radius - 1;
     status = 0;
 
-    SDL_SetRenderDrawColor(renderer,r,g,b, 255);
-    while (offsety >= offsetx) {
+    SDL_SetRenderDrawColor(renderer, r, g, b, 255);
+    while (offsety >= offsetx)
+    {
 
         status += SDL_RenderDrawLine(renderer, x - offsety, y + offsetx,
                                      x + offsety, y + offsetx);
@@ -184,20 +184,24 @@ int SDL:: circulo( int x, int y, int radius,int r, int g, int b)
         status += SDL_RenderDrawLine(renderer, x - offsety, y - offsetx,
                                      x + offsety, y - offsetx);
 
-        if (status < 0) {
+        if (status < 0)
+        {
             status = -1;
             break;
         }
 
-        if (d >= 2*offsetx) {
-            d -= 2*offsetx + 1;
-            offsetx +=1;
+        if (d >= 2 * offsetx)
+        {
+            d -= 2 * offsetx + 1;
+            offsetx += 1;
         }
-        else if (d < 2 * (radius - offsety)) {
+        else if (d < 2 * (radius - offsety))
+        {
             d += 2 * offsety - 1;
             offsety -= 1;
         }
-        else {
+        else
+        {
             d += 2 * (offsety - offsetx - 1);
             offsety -= 1;
             offsetx += 1;
@@ -206,3 +210,152 @@ int SDL:: circulo( int x, int y, int radius,int r, int g, int b)
 
     return status;
 }
+
+//--------------------------------------------------------------------------------
+//------------- IMAGEM -----------------------------------------------------------
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+
+imagem::imagem(SDL_Renderer *renderer, int w, int h, int x, int y, float escala) : renderer(renderer), w(w), h(h), x(x), y(y), escala(escala)
+{
+    if (renderer == NULL)
+    {
+        cout << "ponteiro nulo\n";
+    }
+    texture = SDL_CreateTexture(renderer, format, SDL_TEXTUREACCESS_STREAMING, w, h);
+
+    pixels.resize(w * h * 3, 255);
+    origem = {.x = 0, .y = 0, .w = w, .h = h};
+    saida = {.x = x, .y = y, .w = int(w * escala), .h = int(h * escala)};
+    updateTxt();
+}
+
+void imagem::draw()
+{
+
+    int erro = SDL_RenderCopy(renderer, texture, &origem, &saida);
+    if (erro != 0)
+    {
+        cout << " ERRO AO DESENHAR IMAGEM \"" << erro << "\" : \"" << SDL_GetError() << "\" \n";
+    };
+};
+
+void imagem::updateTxt()
+{
+    SDL_UpdateTexture(texture, 0, pixels.data(), w * NumCanais);
+};
+
+//--------------------------------------------------------------------------------
+//------------- BOTAO  -----------------------------------------------------------
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+
+botao::botao(int x, int y, int w, int h, string titulo, SDL_Renderer *renderer, TTF_Font *fonte)
+    : renderer(renderer), posDim({.x = x, .y = y, .w = w, .h = h}), titulo(titulo), fonte(fonte)
+{
+    SDL_Surface *surfaceMessage =
+        TTF_RenderText_Shaded(fonte, titulo.c_str(), {255, 255, 255, 255}, {250, 250, 250, 1});
+    textureBranco = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
+    SDL_FreeSurface(surfaceMessage);
+
+    surfaceMessage =
+        TTF_RenderText_Shaded(fonte, titulo.c_str(), {0, 0, 0, 255}, {250, 250, 250, 1});
+    texturePreto = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
+    SDL_FreeSurface(surfaceMessage);
+
+    int textw = 0;
+    int texth = 0;
+    TTF_SizeText(fonte, titulo.c_str(), &textw, &texth);
+    int textx = (w - textw) / 2;
+    int texty = (h - texth) / 2;
+
+    Message_rect.x = x + textx;
+    Message_rect.y = y + texty;
+    Message_rect.w = textw;
+    Message_rect.h = texth;
+};
+void botao::draw()
+{
+    int mouseX, mouseY;
+    Uint32 mouse = SDL_GetMouseState(&mouseX, &mouseY);
+    bool esq = (mouse & SDL_BUTTON(SDL_BUTTON_LEFT));
+    bool dir = (mouse & SDL_BUTTON(SDL_BUTTON_RIGHT));
+
+    mouseEmCima = (mouseX >= posDim.x && mouseX <= posDim.x + posDim.w &&
+                   mouseY >= posDim.y && mouseY <= posDim.y + posDim.h);
+
+    if (mouseEmCima == true)
+    {
+        if (esq == true)
+        {
+            clicado = true;
+            liberado = false;
+            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+        }
+        else
+        {
+            SDL_SetRenderDrawColor(renderer, 50, 50, 200, 255);
+            if (clicado == true)
+            {
+                liberado = true;
+                clicado = false;
+            }
+            else
+            {
+            }
+        }
+    }
+    else
+    {
+        liberado = false;
+        clicado = false;
+        SDL_SetRenderDrawColor(renderer, 250, 250, 250, 255);
+    }
+
+    SDL_RenderFillRect(renderer, &posDim);
+
+    if (mouseEmCima)
+        SDL_RenderCopy(renderer, textureBranco, NULL, &Message_rect);
+    else
+        SDL_RenderCopy(renderer, texturePreto, NULL, &Message_rect);
+
+    if (liberado && aoPressionar)
+    {
+        aoPressionar();
+        liberado = false;
+        clicado = false;
+    }
+};
+//--------------------------------------------------------------------------------
+//------------- ROTULO -----------------------------------------------------------
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+
+void rotulo::setTexto(string txt)
+{
+    texto = txt;
+    atualizarTextura();
+    atualizarRect();
+};
+void rotulo::setPos(int x, int y)
+{
+    Message_rect.x = x;
+    Message_rect.y = y;
+    atualizarRect();
+};
+void rotulo::atualizarTextura()
+{
+    surface =
+        TTF_RenderText_Shaded(fonte, texto.c_str(), corFrente == nullptr ? BRANCO : *corFrente, corFundo == 0 ? TRANSPARENTE : *corFundo);
+    texture = SDL_CreateTextureFromSurface(renderer, surface);
+};
+void rotulo::atualizarRect()
+{
+    TTF_SizeText(fonte, texto.c_str(), &w, &h);
+    Message_rect.w = w;
+    Message_rect.h = h;
+};
+void rotulo::draw()
+{
+    SDL_RenderCopy(renderer, texture, NULL, &Message_rect);
+};
