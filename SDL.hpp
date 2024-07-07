@@ -1,5 +1,4 @@
 #pragma once
-
 /*
 ######################################################
 ##   CRIADO POR GILSON MARQUES ALVES JUNIOR         ##
@@ -18,7 +17,7 @@
 #include <SDL2/SDL_ttf.h>
 #include <vector>
 #include <chrono>
-using timepoint = std::chrono::system_clock::time_point ;
+using timepoint = std::chrono::system_clock::time_point;
 #define agora std::chrono::system_clock::now()
 #define delay(x) SDL_Delay(x)
 #define NumCanais 3
@@ -29,14 +28,16 @@ using std::memcpy;
 using std::string;
 using std::to_string;
 using std::vector;
-SDL_Color BRANCO = {255, 255, 255, 255};
-SDL_Color PRETO = {1, 1, 1, 255};
-SDL_Color VERMELHO = {255, 1, 1, 255};
-SDL_Color VERDE = {1, 255, 1, 255};
-SDL_Color AZUL = {1, 1, 255, 255};
-SDL_Color AMARELO = {255, 255, 1, 255};
-SDL_Color TRANSPARENTE = {255, 255, 255, 1};
-SDL_Color TRANSPARENTE2 = {0, 0, 0, 1};
+
+extern SDL_Color BRANCO;
+extern SDL_Color PRETO;
+extern SDL_Color VERMELHO;
+extern SDL_Color VERDE;
+extern SDL_Color AZUL;
+extern SDL_Color AMARELO;
+extern SDL_Color TRANSPARENTE;
+extern SDL_Color TRANSPARENTE2;
+
 class imagem
 {
 public:
@@ -50,6 +51,7 @@ public:
 	imagem(SDL_Renderer *renderer, int w, int h, int x, int y, float escala = 1.0);
 	void draw();
 	void updateTxt();
+	void setPxl(int x, int y, SDL_Color *cor);
 };
 class rotulo
 {
@@ -113,7 +115,7 @@ public:
 	SDL_Surface *surface;
 	bool limitar = false;
 	timepoint tempoVelho;
-	timepoint tempoNovo ;
+	timepoint tempoNovo;
 	std::chrono::nanoseconds tempoAtual;
 	double fps;
 	void (*onKeyBoardPress)(const Uint8 *teclas) = NULL;

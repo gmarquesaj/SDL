@@ -1,6 +1,14 @@
 
 
 #include "SDL.hpp"
+SDL_Color BRANCO = {255, 255, 255, 255};
+SDL_Color PRETO = {1, 1, 1, 255};
+SDL_Color VERMELHO = {255, 1, 1, 255};
+SDL_Color VERDE = {1, 255, 1, 255};
+SDL_Color AZUL = {1, 1, 255, 255};
+SDL_Color AMARELO = {255, 255, 1, 255};
+SDL_Color TRANSPARENTE = {255, 255, 255, 1};
+SDL_Color TRANSPARENTE2 = {0, 0, 0, 1};
 
 void janela::processarEventos()
 {
@@ -243,6 +251,13 @@ void imagem::draw()
 void imagem::updateTxt()
 {
     SDL_UpdateTexture(texture, 0, pixels.data(), w * NumCanais);
+};
+void imagem::setPxl(int x, int y, SDL_Color *cor)
+{
+    int pos = (y * w * NumCanais) + (x * NumCanais);
+    pixels[pos + 0] = cor->r;
+    pixels[pos + 1] = cor->g;
+    pixels[pos + 2] = cor->b;
 };
 
 //--------------------------------------------------------------------------------
