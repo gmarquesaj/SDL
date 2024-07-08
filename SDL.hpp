@@ -38,6 +38,10 @@ extern SDL_Color AMARELO;
 extern SDL_Color TRANSPARENTE;
 extern SDL_Color TRANSPARENTE2;
 
+float fInvLerp(int x1, int x2, int p);
+float fLerp(float v0, float v1, float t);
+float map_from_to(float x, float a, float b, float c, float d);
+
 class imagem
 {
 public:
@@ -101,6 +105,35 @@ public:
 	bool liberado = false;
 	SDL_Rect Message_rect;
 };
+class mouseInfo
+{
+public:
+	int mouseX, mouseY;
+	int mouseXR, mouseYR;
+	Uint32 mouseState;
+	bool esq;
+	bool dir;
+	bool meio;
+	void atualizar();
+	bool mouseNaArea(SDL_Rect posDim);
+};
+class barraProgresso
+{
+public:
+	float pos, max;
+	int x, y, w, h;
+	SDL_Renderer *renderer;
+	mouseInfo *mouse;
+	bool slider = true;
+	int sw = 20;
+	int mx = 0;
+	bool movendo = false;
+
+	barraProgresso(SDL_Renderer *renderer, mouseInfo *mouse, float max, int x, int y, int w, int h) : renderer(renderer), mouse(mouse), max(max), x(x), y(y), w(w), h(h)
+	{
+	}
+	void draw();
+};
 
 class janela
 {
@@ -118,6 +151,8 @@ public:
 	timepoint tempoNovo;
 	std::chrono::nanoseconds tempoAtual;
 	double fps;
+	bool justPress = false;
+	mouseInfo mouse;
 	void (*onKeyBoardPress)(const Uint8 *teclas) = NULL;
 	janela(int w, int h, int fonts, string titulo = "SDL");
 	~janela();
@@ -138,6 +173,7 @@ public:
 	int textH();
 	// Desenha um Retangulo
 	void retangulo(int rx, int ry, int rw, int rh, int r, int g, int b);
+	void retanguloF(int rx, int ry, int rw, int rh, int r, int g, int b);
 	// Cria uma textura a partir de um arquivo BMP
 	SDL_Texture *criarImagem(const char *caminho);
 	// Desenha textura na posição e dimensoes especificadas
@@ -147,4 +183,5 @@ public:
 	// Desenha um circulo completo
 	int circulo(int x, int y, int radius, int r = 255, int g = 255, int b = 255);
 	void processarEventos();
+	bool mouseJustPress();
 };

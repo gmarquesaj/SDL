@@ -10,6 +10,73 @@ SDL_Color AMARELO = {255, 255, 1, 255};
 SDL_Color TRANSPARENTE = {255, 255, 255, 1};
 SDL_Color TRANSPARENTE2 = {0, 0, 0, 1};
 
+
+float fInvLerp(int x1, int x2, int p)
+{
+	if (x1 == x2)
+	{
+		// cout << "VALORES IGUAIS\n";
+		return 1.0;
+	}
+	if (p > x2 or p < x1)
+	{
+		cout << "ERRO NO INVER LERP\n";
+		return 1.0;
+	}
+	float t = ((float)(p - x1) / (float)(x2 - x1));
+	t = t < 0.0 ? 0.0 : t > 1.0 ? 1.0
+								: t;
+	return t;
+}
+float fLerp(float v0, float v1, float t)
+{
+	if (t > 1 or t < 0)
+	{
+		cout << "FORA DO LIMITE\n";
+	}
+	t = t < 0 ? 0 : t > 1 ? 1
+						  : t;
+	return (1.0f - t) * v0 + t * v1;
+};
+float map_from_to(float x, float a, float b, float c, float d)
+{
+	return (x - a) / (b - a) * (d - c) + c;
+}
+
+
+/// MOUSE//
+void mouseInfo::atualizar()
+{
+	mouseState = SDL_GetMouseState(&mouseX, &mouseY);
+	esq = (mouseState & SDL_BUTTON(SDL_BUTTON_LEFT));
+	dir = (mouseState & SDL_BUTTON(SDL_BUTTON_RIGHT));
+	meio = (mouseState & SDL_BUTTON(SDL_BUTTON_MIDDLE));
+}
+
+bool mouseInfo::mouseNaArea(SDL_Rect posDim)
+{
+     return (mouseX >= posDim.x && mouseX <= posDim.x + posDim.w &&
+            mouseY >= posDim.y && mouseY <= posDim.y + posDim.h);
+}
+
+///
+bool janela::mouseJustPress()
+{
+
+    bool c = mouse.esq;
+    if (c == false)
+    {
+        justPress = false;
+        return false;
+    }
+    if (c and justPress == true)
+    {
+        return false;
+    }
+    justPress = true;
+    cout << "ACABOU DE APERTAR\n";
+    return true;
+};
 void janela::processarEventos()
 {
     while (SDL_PollEvent(&event))
@@ -21,6 +88,33 @@ void janela::processarEventos()
             std::cout << "Scancode: " << scancode << std::endl;
             const Uint8 *teclas = SDL_GetKeyboardState(NULL);
             onKeyBoardPress(teclas);
+            continue;
+        }
+        if (event.type == SDL_MOUSEBUTTONDOWN)
+        {
+           // cout << "SDL_MOUSEBUTTONDOWN\n";
+            continue;
+        }
+        if (event.type == SDL_MOUSEBUTTONUP)
+        {
+           // cout << "SDL_MOUSEBUTTONUP\n";
+            continue;
+        }
+        if (event.type == SDL_MOUSEMOTION)
+        {
+            int x = event.motion.x;
+                int y = event.motion.y;
+                int xrel = event.motion.xrel;
+                int yrel = event.motion.yrel;
+                mouse.mouseXR=xrel;
+                mouse.mouseYR=yrel;
+              //  std::cout << "Mouse moved to (" << x << ", " << y << ") with relative movement (" << xrel << ", " << yrel << ")\n";
+            continue;
+        }
+        if (event.type == SDL_MOUSEWHEEL)
+        {
+           // cout << "SDL_MOUSEWHEEL\n";
+            continue;
         }
     }
 
@@ -123,12 +217,20 @@ void janela::printScreenBMP(const char *caminho)
 
 void janela::retangulo(int rx, int ry, int rw, int rh, int r, int g, int b)
 {
-    SDL_Rect ret = {rx, rx, rw, rh};
+    SDL_Rect ret = {rx, ry, rw, rh};
     if (r > -1 and g > -1 and b > -1)
         SDL_SetRenderDrawColor(renderer, r, g, b, SDL_ALPHA_OPAQUE);
+
     SDL_RenderDrawRect(renderer, &ret);
 }
+void janela::retanguloF(int rx, int ry, int rw, int rh, int r, int g, int b)
+{
+    SDL_Rect ret = {rx, ry, rw, rh};
+    if (r > -1 and g > -1 and b > -1)
+        SDL_SetRenderDrawColor(renderer, r, g, b, SDL_ALPHA_OPAQUE);
 
+    SDL_RenderFillRect(renderer, &ret);
+}
 SDL_Texture *janela::criarImagem(const char *caminho)
 {
     SDL_Surface *si = SDL_LoadBMP(caminho);
@@ -218,6 +320,3 @@ int janela::circulo(int x, int y, int radius, int r, int g, int b)
 
     return status;
 }
-
-
-
